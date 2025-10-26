@@ -1,0 +1,37 @@
+name: Leviathan Quality Checks
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt || true
+        pip install flake8 pylint mypy bandit pandas types-requests
+
+    - name: Run Quality Checks
+      run: |
+        echo "🚀 Running full QC..."
+        python scripts/quality_check_all.py || true
+
+    - name: Upload QC Reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: qc-reports
+        path: exports/code_reports
