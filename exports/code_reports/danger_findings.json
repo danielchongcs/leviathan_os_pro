@@ -1,0 +1,30 @@
+[
+  {
+    "pattern": "SECRET_|API_KEY|AWS_SECRET|TOKEN",
+    "reason": "likely secret-ish variable name",
+    "file": "leviathan\\ingestors\\youtube.py",
+    "line_no": 10,
+    "snippet": "ping import Any, Dict  import requests  API_KEY: str = os.getenv(\"YOUTUBE_API_KEY\", \"\")"
+  },
+  {
+    "pattern": "SECRET_|API_KEY|AWS_SECRET|TOKEN",
+    "reason": "likely secret-ish variable name",
+    "file": "leviathan\\ingestors\\youtube.py",
+    "line_no": 10,
+    "snippet": "ests  API_KEY: str = os.getenv(\"YOUTUBE_API_KEY\", \"\") QUERY: str = \"singapore real esta"
+  },
+  {
+    "pattern": "SECRET_|API_KEY|AWS_SECRET|TOKEN",
+    "reason": "likely secret-ish variable name",
+    "file": "leviathan\\ingestors\\youtube.py",
+    "line_no": 17,
+    "snippet": "YouTube videos for QUERY.\"\"\"     if not API_KEY:         return []      url = \"https://"
+  },
+  {
+    "pattern": "SECRET_|API_KEY|AWS_SECRET|TOKEN",
+    "reason": "likely secret-ish variable name",
+    "file": "leviathan\\ingestors\\youtube.py",
+    "line_no": 23,
+    "snippet": "Dict[str, str | int] = {         \"key\": API_KEY,         \"part\": \"snippet\",         \"q\""
+  }
+]

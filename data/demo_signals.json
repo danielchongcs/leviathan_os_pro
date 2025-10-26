@@ -1,0 +1,118 @@
+{
+  "generated_at": "2025-10-25",
+  "sources": [
+    "google_trends",
+    "youtube",
+    "reddit"
+  ],
+  "signals": [
+    {
+      "phrase": "mini warehouse singapore",
+      "count": 118,
+      "velocity": 0.42,
+      "novelty": 0.67,
+      "domain": "real_estate",
+      "examples": [
+        "mini warehouse rental",
+        "small storage unit for SME",
+        "b1 b2 micro unit"
+      ]
+    },
+    {
+      "phrase": "co living near NUS",
+      "count": 206,
+      "velocity": 0.35,
+      "novelty": 0.52,
+      "domain": "real_estate",
+      "examples": [
+        "student housing nus",
+        "short term nus condo room",
+        "stay near nus"
+      ]
+    },
+    {
+      "phrase": "ai agent for lease management",
+      "count": 78,
+      "velocity": 0.58,
+      "novelty": 0.73,
+      "domain": "saas",
+      "examples": [
+        "rental collection bot",
+        "automated tenancy renewal",
+        "ai maintenance requests"
+      ]
+    },
+    {
+      "phrase": "virtual mailbox singapore business",
+      "count": 133,
+      "velocity": 0.46,
+      "novelty": 0.58,
+      "domain": "services",
+      "examples": [
+        "registered address",
+        "company address",
+        "mail scanning service"
+      ]
+    },
+    {
+      "phrase": "industrial unit under 500 sq ft",
+      "count": 91,
+      "velocity": 0.49,
+      "novelty": 0.64,
+      "domain": "real_estate",
+      "examples": [
+        "micro unit jurong",
+        "b1 small factory",
+        "woodlands small warehouse"
+      ]
+    },
+    {
+      "phrase": "ozone car odor",
+      "count": 162,
+      "velocity": 0.31,
+      "novelty": 0.4,
+      "domain": "auto",
+      "examples": [
+        "remove mildew smell",
+        "ozone machine safe",
+        "ac mold prevention"
+      ]
+    },
+    {
+      "phrase": "typeform alternative ai",
+      "count": 177,
+      "velocity": 0.38,
+      "novelty": 0.47,
+      "domain": "saas",
+      "examples": [
+        "ai forms",
+        "chatbot intake form",
+        "lead qualifier"
+      ]
+    },
+    {
+      "phrase": "mold safe ac cleaning",
+      "count": 86,
+      "velocity": 0.41,
+      "novelty": 0.55,
+      "domain": "home",
+      "examples": [
+        "kilma refresh review",
+        "ozone vs vinegar",
+        "ac mold kill temp"
+      ]
+    },
+    {
+      "phrase": "student accommodation near kent ridge",
+      "count": 148,
+      "velocity": 0.29,
+      "novelty": 0.36,
+      "domain": "real_estate",
+      "examples": [
+        "nus dorm alternative",
+        "staynearNUS",
+        "kent ridge room rental"
+      ]
+    }
+  ]
+}
