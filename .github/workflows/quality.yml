@@ -1,37 +1,156 @@
-name: Leviathan Quality Checks
+name: Quality Checks
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
+    paths:
+      - "**.py"
+      - ".flake8"
+      - "mypy.ini"
+      - ".pylintrc"
+      - "requirements.txt"
+      - "scripts/**"
+      - ".github/workflows/quality.yml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["**"]
+    paths:
+      - "**.py"
+      - ".flake8"
+      - "mypy.ini"
+      - ".pylintrc"
+      - "requirements.txt"
+      - "scripts/**"
+      - ".github/workflows/quality.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   quality:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt || true
-        pip install flake8 pylint mypy bandit pandas types-requests
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-    - name: Run Quality Checks
-      run: |
-        echo "🚀 Running full QC..."
-        python scripts/quality_check_all.py || true
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install flake8 pylint mypy bandit
 
-    - name: Upload QC Reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: qc-reports
-        path: exports/code_reports
+      - name: Prepare report directory
+        run: mkdir -p exports/code_reports
+
+      - name: Flake8
+        id: flake8
+        run: |
+          set +e
+          flake8 leviathan | tee exports/code_reports/flake8.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Pylint
+        id: pylint
+        run: |
+          set +e
+          pylint leviathan | tee exports/code_reports/pylint.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Mypy
+        id: mypy
+        run: |
+          set +e
+          mypy leviathan | tee exports/code_reports/mypy.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Bandit
+        id: bandit
+        run: |
+          set +e
+          bandit -r leviathan | tee exports/code_reports/bandit.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Run local QC script (optional)
+        run: |
+          set +e
+          python scripts/quality_check_all.py || true
+
+      - name: Decide overall status
+        id: decide
+        run: |
+          fail=0
+          for code in "${{ steps.flake8.outputs.exit_code }}" \
+                      "${{ steps.pylint.outputs.exit_code }}" \
+                      "${{ steps.mypy.outputs.exit_code }}" \
+                      "${{ steps.bandit.outputs.exit_code }}"; do
+            if [ "${code:-0}" != "0" ]; then fail=1; fi
+          done
+          echo "failed=$fail" >> $GITHUB_OUTPUT
+          if [ "$fail" != "0" ]; then
+            echo "One or more quality checks failed."
+          fi
+
+      - name: Upload quality artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports-${{ github.run_number }}
+          path: |
+            exports/code_reports/**
+            exports/**
+
+      - name: Comment summary on PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const f = (n,c)=> `- **${n}**: ${c==="0"?"✅ pass":"❌ fail"}`;
+            const msg = `
+            ### Automated quality check
+
+            ${f('Flake8',  '${{ steps.flake8.outputs.exit_code }}')}
+            ${f('Pylint',  '${{ steps.pylint.outputs.exit_code }}')}
+            ${f('Mypy',    '${{ steps.mypy.outputs.exit_code }}')}
+            ${f('Bandit',  '${{ steps.bandit.outputs.exit_code }}')}
+
+            ⬇️ Full reports are attached as workflow **Artifacts**.
+            `;
+            const {context, github} = require('@actions/github');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: msg
+            });
+
+      - name: Fail job if any check failed
+        if: ${{ steps.decide.outputs.failed == '1' }}
+        run: |
+          echo "Failing because at least one quality step failed."
+          exit 1
